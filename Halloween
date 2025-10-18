@@ -1,0 +1,461 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Auto Farm Variables
+local itemName = "Bloodred"
+local skipName = "Bloodred Mushroom Seed"
+local running = false
+local currentSpeed = 1 -- Default speed (Slow)
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MushroomGUI"
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 200, 0, 180) -- MAS MALIIT
+mainFrame.Position = UDim2.new(0.5, -100, 0.1, 0) -- NASA TAAS
+mainFrame.AnchorPoint = Vector2.new(0.5, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+-- Main Frame Gradient
+local mainGradient = Instance.new("UIGradient")
+mainGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 10, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 5, 20))
+})
+mainGradient.Rotation = 45
+mainGradient.Parent = mainFrame
+
+-- Main Frame Corner
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8) -- MAS MALIIT NA CORNER
+mainCorner.Parent = mainFrame
+
+-- Main Frame Stroke
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(120, 20, 40)
+mainStroke.Thickness = 1.5 -- MAS PAYAT
+mainStroke.Parent = mainFrame
+
+-- Top Bar
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 25) -- MAS MAIKLI
+topBar.Position = UDim2.new(0, 0, 0, 0)
+topBar.BackgroundColor3 = Color3.fromRGB(30, 10, 25)
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+
+-- Top Bar Corner
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 8)
+topBarCorner.Parent = topBar
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(0.6, 0, 1, 0)
+titleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "🍄 Bloodred"
+titleLabel.TextColor3 = Color3.fromRGB(255, 80, 100)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = topBar
+
+-- Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Size = UDim2.new(0, 20, 0, 20) -- MAS MALIIT
+closeButton.Position = UDim2.new(0.9, 0, 0.1, 0)
+closeButton.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
+closeButton.BorderSizePixel = 0
+closeButton.Text = "×"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Parent = topBar
+
+-- Close Button Corner
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+-- Minimize Button
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Name = "MinimizeButton"
+minimizeButton.Size = UDim2.new(0, 20, 0, 20) -- MAS MALIIT
+minimizeButton.Position = UDim2.new(0.78, 0, 0.1, 0)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Text = "–"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextScaled = true
+minimizeButton.Font = Enum.Font.GothamBold
+minimizeButton.Parent = topBar
+
+-- Minimize Button Corner
+local minimizeCorner = Instance.new("UICorner")
+minimizeCorner.CornerRadius = UDim.new(1, 0)
+minimizeCorner.Parent = minimizeButton
+
+-- Content Frame
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "ContentFrame"
+contentFrame.Size = UDim2.new(1, -10, 1, -35) -- MAS MALIIT
+contentFrame.Position = UDim2.new(0, 5, 0, 30)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = mainFrame
+
+-- Toggle Section
+local toggleSection = Instance.new("Frame")
+toggleSection.Name = "ToggleSection"
+toggleSection.Size = UDim2.new(1, 0, 0, 50) -- MAS MAIKLI
+toggleSection.Position = UDim2.new(0, 0, 0, 5)
+toggleSection.BackgroundColor3 = Color3.fromRGB(30, 20, 35)
+toggleSection.BorderSizePixel = 0
+toggleSection.Parent = contentFrame
+
+-- Toggle Section Corner
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 6)
+toggleCorner.Parent = toggleSection
+
+-- Toggle Section Stroke
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = Color3.fromRGB(80, 30, 50)
+toggleStroke.Thickness = 1
+toggleStroke.Parent = toggleSection
+
+-- Toggle Label - MAS MALIIT NA FONT
+local toggleLabel = Instance.new("TextLabel")
+toggleLabel.Name = "ToggleLabel"
+toggleLabel.Size = UDim2.new(0.6, 0, 0.6, 0)
+toggleLabel.Position = UDim2.new(0.05, 0, 0.2, 0)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "Auto Submit"
+toggleLabel.TextColor3 = Color3.fromRGB(255, 200, 200)
+toggleLabel.TextScaled = true
+toggleLabel.Font = Enum.Font.Gotham
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Parent = toggleSection
+
+-- Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 40, 0, 20)
+toggleButton.Position = UDim2.new(0.7, 0, 0.4, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(80, 30, 40)
+toggleButton.BorderSizePixel = 0
+toggleButton.Text = "ON"
+toggleButton.TextColor3 = Color3.fromRGB(255, 150, 150)
+toggleButton.TextScaled = true
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.Parent = toggleSection
+
+-- Toggle Button Corner
+local toggleButtonCorner = Instance.new("UICorner")
+toggleButtonCorner.CornerRadius = UDim.new(1, 0)
+toggleButtonCorner.Parent = toggleButton
+
+-- Toggle Status
+local toggleStatus = false
+
+-- Dropdown Section
+local dropdownSection = Instance.new("Frame")
+dropdownSection.Name = "DropdownSection"
+dropdownSection.Size = UDim2.new(1, 0, 0, 70) -- MAS MAIKLI
+dropdownSection.Position = UDim2.new(0, 0, 0, 60)
+dropdownSection.BackgroundColor3 = Color3.fromRGB(30, 20, 35)
+dropdownSection.BorderSizePixel = 0
+dropdownSection.Parent = contentFrame
+
+-- Dropdown Corner
+local dropdownCorner = Instance.new("UICorner")
+dropdownCorner.CornerRadius = UDim.new(0, 6)
+dropdownCorner.Parent = dropdownSection
+
+-- Dropdown Stroke
+local dropdownStroke = Instance.new("UIStroke")
+dropdownStroke.Color = Color3.fromRGB(80, 30, 50)
+dropdownStroke.Thickness = 1
+dropdownStroke.Parent = dropdownSection
+
+-- Dropdown Label
+local dropdownLabel = Instance.new("TextLabel")
+dropdownLabel.Name = "DropdownLabel"
+dropdownLabel.Size = UDim2.new(0.8, 0, 0, 18) -- MAS MAIKLI
+dropdownLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
+dropdownLabel.BackgroundTransparency = 1
+dropdownLabel.Text = "Select Speed"
+dropdownLabel.TextColor3 = Color3.fromRGB(255, 200, 200)
+dropdownLabel.TextScaled = true
+dropdownLabel.Font = Enum.Font.Gotham
+dropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+dropdownLabel.Parent = dropdownSection
+
+-- Dropdown Button
+local dropdownButton = Instance.new("TextButton")
+dropdownButton.Name = "DropdownButton"
+dropdownButton.Size = UDim2.new(0.9, 0, 0, 25) -- MAS MAIKLI
+dropdownButton.Position = UDim2.new(0.05, 0, 0.5, 0)
+dropdownButton.BackgroundColor3 = Color3.fromRGB(50, 30, 45)
+dropdownButton.BorderSizePixel = 0
+dropdownButton.Text = "Slow"
+dropdownButton.TextColor3 = Color3.fromRGB(255, 180, 180)
+dropdownButton.TextScaled = true
+dropdownButton.Font = Enum.Font.Gotham
+dropdownButton.Parent = dropdownSection
+
+-- Dropdown Button Corner
+local dropdownButtonCorner = Instance.new("UICorner")
+dropdownButtonCorner.CornerRadius = UDim.new(0, 4)
+dropdownButtonCorner.Parent = dropdownButton
+
+-- Dropdown Options Frame
+local dropdownOptions = Instance.new("Frame")
+dropdownOptions.Name = "DropdownOptions"
+dropdownOptions.Size = UDim2.new(0.9, 0, 0, 70)
+dropdownOptions.Position = UDim2.new(0.05, 0, 0.5, 0)
+dropdownOptions.BackgroundColor3 = Color3.fromRGB(40, 25, 45)
+dropdownOptions.BorderSizePixel = 0
+dropdownOptions.Visible = false
+dropdownOptions.Parent = dropdownSection
+
+-- Dropdown Options Corner
+local optionsCorner = Instance.new("UICorner")
+optionsCorner.CornerRadius = UDim.new(0, 4)
+optionsCorner.Parent = dropdownOptions
+
+-- Dropdown Options Stroke
+local optionsStroke = Instance.new("UIStroke")
+optionsStroke.Color = Color3.fromRGB(100, 40, 60)
+optionsStroke.Thickness = 1
+optionsStroke.Parent = dropdownOptions
+
+-- Dropdown Options
+local speedOptions = {
+    {name = "Slow", value = 1},
+    {name = "Fast", value = 0.1},
+    {name = "Super Fast", value = 0.03}
+}
+
+local optionButtons = {}
+
+for i, option in ipairs(speedOptions) do
+    local optionButton = Instance.new("TextButton")
+    optionButton.Name = "Option"..i
+    optionButton.Size = UDim2.new(1, 0, 0, 20)
+    optionButton.Position = UDim2.new(0, 0, 0, (i-1)*23)
+    optionButton.BackgroundColor3 = Color3.fromRGB(50, 35, 55)
+    optionButton.BorderSizePixel = 0
+    optionButton.Text = option.name
+    optionButton.TextColor3 = Color3.fromRGB(255, 200, 200)
+    optionButton.TextScaled = true
+    optionButton.Font = Enum.Font.Gotham
+    optionButton.Parent = dropdownOptions
+    
+    optionButton.MouseButton1Click:Connect(function()
+        dropdownButton.Text = option.name
+        currentSpeed = option.value
+        dropdownOptions.Visible = false
+    end)
+    
+    table.insert(optionButtons, optionButton)
+end
+
+-- Footer
+local footer = Instance.new("TextLabel")
+footer.Name = "Footer"
+footer.Size = UDim2.new(1, 0, 0, 15) -- MAS MAIKLI
+footer.Position = UDim2.new(0, 0, 0.9, 0)
+footer.BackgroundTransparency = 1
+footer.Text = "by LuckyTt"
+footer.TextColor3 = Color3.fromRGB(150, 80, 100)
+footer.TextScaled = true
+footer.Font = Enum.Font.Gotham
+footer.Parent = contentFrame
+
+-- === AUTO FARM FUNCTIONALITY === --
+local lastRunTime = 0
+local autoFarmConnection
+
+-- Hanapin yung RemoteEvent
+local SubmitJackOLanternItem = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("SubmitJackOLanternItem")
+
+local function executeAutoFarm()
+    local char = player.Character
+    if not char then return end
+    
+    local backpack = player:FindFirstChild("Backpack")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+    if humanoid and backpack then
+        for _, tool in pairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                if string.find(tool.Name, itemName) and not string.find(tool.Name, skipName) then
+                    -- Equip the tool
+                    humanoid:EquipTool(tool)
+                    
+                    -- Wait konti para ma-ensure na na-equip
+                    wait(0.05)
+                    
+                    -- Fire server to submit
+                    local args = {
+                        [1] = "Held"
+                    }
+                    
+                    pcall(function()
+                        SubmitJackOLanternItem:FireServer(unpack(args))
+                    end)
+                    
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function startAutoFarm()
+    if autoFarmConnection then
+        autoFarmConnection:Disconnect()
+    end
+    
+    autoFarmConnection = RunService.Heartbeat:Connect(function()
+        if not running then return end
+        
+        local currentTime = tick()
+        if currentTime - lastRunTime < currentSpeed then return end
+        
+        executeAutoFarm()
+        lastRunTime = currentTime
+    end)
+end
+
+local function stopAutoFarm()
+    running = false
+    if autoFarmConnection then
+        autoFarmConnection:Disconnect()
+        autoFarmConnection = nil
+    end
+end
+
+-- === GUI FUNCTIONALITY === --
+
+-- Toggle Button Functionality
+toggleButton.MouseButton1Click:Connect(function()
+    toggleStatus = not toggleStatus
+    running = toggleStatus
+    
+    if toggleStatus then
+        toggleButton.BackgroundColor3 = Color3.fromRGB(120, 40, 60)
+        toggleButton.Text = "OFF"
+        toggleButton.TextColor3 = Color3.fromRGB(255, 220, 220)
+        startAutoFarm()
+    else
+        toggleButton.BackgroundColor3 = Color3.fromRGB(80, 30, 40)
+        toggleButton.Text = "ON"
+        toggleButton.TextColor3 = Color3.fromRGB(255, 150, 150)
+        stopAutoFarm()
+    end
+end)
+
+-- Dropdown Toggle
+dropdownButton.MouseButton1Click:Connect(function()
+    dropdownOptions.Visible = not dropdownOptions.Visible
+end)
+
+-- Close Button Functionality
+closeButton.MouseButton1Click:Connect(function()
+    stopAutoFarm()
+    screenGui:Destroy()
+end)
+
+-- Minimize Button Functionality
+local minimized = false
+minimizeButton.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        contentFrame.Visible = false
+        mainFrame.Size = UDim2.new(0, 200, 0, 25)
+    else
+        contentFrame.Visible = true
+        mainFrame.Size = UDim2.new(0, 200, 0, 180)
+    end
+end)
+
+-- Simplified Dragging Functionality
+local dragging = false
+local dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+topBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Button Hover Effects
+local function setupButtonHover(button)
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = button.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.1)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        if button == toggleButton then
+            button.BackgroundColor3 = toggleStatus and Color3.fromRGB(120, 40, 60) or Color3.fromRGB(80, 30, 40)
+        elseif button == closeButton then
+            button.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
+        elseif button == minimizeButton then
+            button.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+        elseif button == dropdownButton then
+            button.BackgroundColor3 = Color3.fromRGB(50, 30, 45)
+        end
+    end)
+end
+
+setupButtonHover(toggleButton)
+setupButtonHover(closeButton)
+setupButtonHover(minimizeButton)
+setupButtonHover(dropdownButton)
+
+-- Close dropdown when clicking outside
+UserInputService.InputBegan:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and dropdownOptions.Visible then
+        local mousePos = input.Position
+        local dropdownAbsolutePos = dropdownOptions.AbsolutePosition
+        local dropdownSize = dropdownOptions.AbsoluteSize
+        
+        if not (mousePos.X >= dropdownAbsolutePos.X and mousePos.X <= dropdownAbsolutePos.X + dropdownSize.X and
+               mousePos.Y >= dropdownAbsolutePos.Y and mousePos.Y <= dropdownAbsolutePos.Y + dropdownSize.Y) then
+            dropdownOptions.Visible = false
+        end
+    end
+end)
